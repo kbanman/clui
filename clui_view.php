@@ -23,7 +23,7 @@ class Clui_View {
 
 	public function clear()
 	{
-		ncurses_wclear($this->window);
+		ncurses_werase($this->window);
 
 		if ($this->border)
 		{
@@ -31,7 +31,6 @@ class Clui_View {
 			$this->setBorder(false);
 			$this->setBorder(true);
 		}
-
 		return $this;
 	}
 
@@ -152,6 +151,12 @@ class Clui_View {
 		$this->window = ncurses_newwin($h, $w, $y, $x);
 		$this->origin = array($x, $y);
 
+		if ($this->border)
+		{
+			$this->setBorder(false);
+			$this->setBorder(true);
+		}
+
 		return $this;
 	}
 
@@ -187,16 +192,14 @@ class Clui_View {
 
 	public function addString($x, $y, $string)
 	{
-		$x += $this->getFrame('x');
 		$x += $this->padding[3];
-		$y += $this->origin[1];
 		$y += $this->padding[0];
 
 		$lines = explode("\n", $string);
 
 		foreach ($lines as $line)
 		{
-			ncurses_mvaddstr($y, $x, $line);
+			ncurses_mvwaddstr($this->window, $y, $x, $line);
 			$y++;
 		}
 

@@ -1,0 +1,3 @@
+#!/bin/sh          
+export ESCDELAY=25;
+php test.php

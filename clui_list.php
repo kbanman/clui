@@ -11,6 +11,7 @@ class Clui_List extends Clui_View {
 	public $selected;
 	public $escape_keys = array(Clui::KEY_ESCAPE);
 	public $action;
+	public $auto_height;
 
 	public function __construct($x=null, $y=null, $w=null, $h=null)
 	{
@@ -40,23 +41,46 @@ class Clui_List extends Clui_View {
 
 	public function setFrame($x, $y, $w, $h = true)
 	{
+		// We'll need origin before it would normally get set
+		$this->origin = array($x, $y);
+
+		// Auto-calculate width
+		if ($w === true)
+		{
+			$w = $this->parent->getWidth(true);
+		}
+
+		$this->calculateColumns($w);
+
 		// Auto-calculate height
 		if ($h === true)
 		{
-			// But maybe the width is being auto-calculated...
-			if ($w === true)
-			{
-				$w = $this->parent->getWidth(true);
-				$this->calculateColumns($w - ($this->padding[1] + $this->padding[3]));
-			}
-			else
-			{
-				$this->calculateColumns($w);
-			}
+			$this->auto_height = ! $this->auto_height;
+
 			$h = $this->num_rows + $this->padding[0] + $this->padding[2];
 		}
 
+		
+
 		parent::setFrame($x, $y, $w, $h);
+
+		return $this;
+	}
+
+	public function setBorder($bool)
+	{
+		parent::setBorder($bool);
+
+		// This will affect the height of the window
+		if ($this->auto_height)
+		{
+			list($x, $y, $w, $h) = $this->getFrame();
+			$this->setFrame($x-1, $y-1, $w, true);
+		}
+		else
+		{
+			$this->calculateColumns();
+		}
 
 		return $this;
 	}
@@ -141,7 +165,7 @@ class Clui_List extends Clui_View {
 			elseif ($key == Clui::KEY_ENTER)
 			{
 				// Trigger the action for the selected item
-				if (call_user_func($this->action, $this->selected))
+				if (isset($this->action) && call_user_func($this->action, $this->selected))
 				{
 					// Allow action to stop the loop
 					return;
