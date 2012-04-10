@@ -19,7 +19,6 @@ $menu = Clui_List::make($items)
 
 
 // Add the detail view
-$data = include('fakedata.php');
 $columns = array(
 	'Name::30%' => function($row){ return $row['name']; },
 	'Address::30%' => function($row){ return $row['address'].', '.$row['city']; },
@@ -29,21 +28,17 @@ $columns = array(
 	),
 	'Phone::12',
 );
-die(count($data));
-$detail = Clui_Table::make($data)
+$detail = Clui_View::make()
 	->setParent(Clui::rootView())
 	->setFrame(0, $menu->getHeight(), $autoWidth = true, Clui::getHeight(true)-$menu->getHeight())
 	->setBorder(true)
-//	->setColumns($columns)
 	->draw();
 
-/*
 $menu->setAction(function($i) use ($items, $detail)
 {
-	$detail->clear()->draw()->addString(0, 0, 'Selected: '.$items[$i]);
+	$detail->clear()->addString(1, 0, 'Selected: '.$items[$i])->draw();
 });
 
 $menu->focus();
-*/
 
 Clui::end();
