@@ -6,6 +6,7 @@ class Clui_View {
 	public $frame;
 	public $border = false;
 	public $parent = null;
+	public $children = array();
 	public $padding = array(0, 0, 0, 0);
 
 	public function __construct($x=null, $y=null, $w=null, $h=null)
@@ -37,6 +38,11 @@ class Clui_View {
 	public function draw()
 	{
 		ncurses_wrefresh($this->window);
+
+		foreach ($this->children as $view)
+		{
+			$view->draw();
+		}
 
 		return $this;
 	}
@@ -186,6 +192,7 @@ class Clui_View {
 	public function addSubview($view)
 	{
 		$view->setParent($this);
+		$this->children[] = $view;
 
 		return $this;
 	}

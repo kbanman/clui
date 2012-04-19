@@ -12,6 +12,7 @@ class Clui_List extends Clui_View {
 	public $escape_keys = array(Clui::KEY_ESCAPE);
 	public $action;
 	public $auto_height;
+	public $item_label;
 
 	public function __construct($x=null, $y=null, $w=null, $h=null)
 	{
@@ -105,7 +106,9 @@ class Clui_List extends Clui_View {
 
 	protected function calculateColumns($width = null)
 	{
-		is_null($width) && $width = $this->getWidth(true);
+		is_null($width) && $width = $this->getWidth();
+		$width -= ($this->padding[1] + $this->padding[3]);
+		
 		$this->column_width = floor($width/$this->num_columns);
 		$this->num_rows = ceil(count($this->items)/$this->num_columns);
 	}
@@ -123,7 +126,17 @@ class Clui_List extends Clui_View {
 
 	protected function itemLabel($i)
 	{
-		return str_pad(' '.trim($this->items[$i]).' ', $this->column_width);
+		$label = $this->items[$i];
+		if (is_callable($this->item_label))
+		{
+			$label = call_user_func($this->item_label, $i, $this->items[$i]);
+		}
+		return str_pad(' '.trim($label).' ', $this->column_width);
+	}
+
+	public function setItemLabel($callable)
+	{
+		$this->item_label = $callable;
 	}
 
 	public function focus()
@@ -165,7 +178,7 @@ class Clui_List extends Clui_View {
 			elseif ($key == Clui::KEY_ENTER)
 			{
 				// Trigger the action for the selected item
-				if (isset($this->action) && call_user_func($this->action, $this->selected))
+				if (isset($this->action) && call_user_func($this->action, $this->selected, $this->items[$this->selected]))
 				{
 					// Allow action to stop the loop
 					return;
